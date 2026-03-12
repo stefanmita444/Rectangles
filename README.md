@@ -87,6 +87,12 @@ After running tests, open the HTML report in your browser:
 build/reports/tests/test/index.html
 ```
 
+### View coverage report
+JaCoCo runs automatically after every test run. Open the HTML report in your browser:
+```
+build/reports/jacoco/test/html/index.html
+```
+
 ### Linux
 ```bash
 chmod +x gradlew
@@ -104,6 +110,37 @@ All dependencies are pulled automatically from Maven Central on first build.
 | `spring-boot-starter` | implementation | Core Spring Boot framework |
 | `spring-boot-starter-test` | testImplementation | JUnit 5, AssertJ, Mockito |
 | `junit-platform-launcher` | testRuntimeOnly | Required to run JUnit 5 tests with Gradle |
+
+---
+
+## Using the CLI
+
+Run the application with `./gradlew bootRun`. You will be presented with an interactive menu:
+
+```
+╔══════════════════════════════╗
+║     Rectangle Analyzer CLI   ║
+╚══════════════════════════════╝
+
+Choose an operation:
+  1 - Intersection
+  2 - Containment
+  3 - Adjacency
+  0 - Exit
+Option:
+```
+
+Select an operation, then enter the two corner points of each rectangle when prompted:
+
+```
+Rectangle A — enter two corner points:
+  x1: 0
+  y1: 0
+  x2: 4
+  y2: 4
+```
+
+You are entering **point 1** as `(x1, y1)` and **point 2** as `(x2, y2)`. Any two opposite corners work — the constructor normalizes them automatically. The only constraint is that the two points cannot share an X or Y value (that would produce a zero-width or zero-height rectangle).
 
 ---
 
@@ -162,10 +199,10 @@ Tests use JUnit 5. Service tests use `@ExtendWith(SpringExtension.class)` and `@
 
 | Test Class | Tests | Coverage |
 |---|---|---|
-| `RectangleTest` | 4 | Normalization, zero-dimension validation, corner accessors |
-| `IntersectionAnalyzerTest` | 6 | Overlapping, separate, contained, cross-shape, adjacent (no crossing), partial overlap |
-| `ContainmentAnalyzerTest` | 6 | Fully contained, boundary, separate, overlap, identical, reversed sizes |
-| `AdjacencyAnalyzerTest` | 8 | Proper (H+V), sub-line (both directions), partial, not adjacent (gap, diagonal, y-gap, overlapping) |
+| `RectangleTest` | 6 | Normalization, zero-dimension validation, corner accessors, negative coordinates, cross-origin |
+| `IntersectionAnalyzerTest` | 6 | Overlapping, separate, contained, cross-shape (4 points verified), adjacent (no crossing), partial overlap |
+| `ContainmentAnalyzerTest` | 9 | Fully contained, boundary, separate, overlap, identical, reversed sizes, A below B, B left of A, B below A |
+| `AdjacencyAnalyzerTest` | 13 | Proper (all 4 directions), sub-line (both directions), partial, not adjacent (gap, diagonal, x-gap, y-gap, overlapping, corner-touch) |
 
 ---
 

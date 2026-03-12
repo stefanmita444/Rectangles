@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '4.0.3'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'org.example'
@@ -24,11 +25,32 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+bootRun {
+    standardInput = System.in
+}
+
 test {
     useJUnitPlatform()
     outputs.upToDateWhen { false }
     testLogging {
         events "passed", "skipped", "failed"
         showStandardStreams = true
+    }
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = false
+        html.required = true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                'com/rectangles/RectanglesApplication.class',
+                'com/rectangles/domain/**'
+            ])
+        }))
     }
 }

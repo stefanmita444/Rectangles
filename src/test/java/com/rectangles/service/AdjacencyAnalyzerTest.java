@@ -128,4 +128,54 @@ public class AdjacencyAnalyzerTest {
         assertEquals(AdjacencyResult.Type.NOT_ADJACENT, result.type());
     }
 
+    @Test
+    @DisplayName("PROPER adjacency - B is to the left of A (hits a.minX == b.maxX branch)")
+    void testProperAdjacencyBLeftOfA() {
+        // B's right edge and A's left edge both run from y=0 to y=4
+        Rectangle a = new Rectangle(4, 0, 8, 4);
+        Rectangle b = new Rectangle(0, 0, 4, 4);
+
+        AdjacencyResult result = analyzer.analyze(a, b);
+
+        assertEquals(AdjacencyResult.Type.PROPER, result.type());
+        assertTrue(result.isAdjacent());
+    }
+
+    @Test
+    @DisplayName("NOT adjacent - horizontal boundary found but X ranges have a gap (hits false branch of horizontal type != NOT_ADJACENT)")
+    void testHorizontalBoundaryFoundButXGap() {
+        // A's top edge (y=4) == B's bottom edge (y=4), but A is x=0..2 and B is x=5..9 — no X overlap
+        Rectangle a = new Rectangle(0, 0, 2, 4);
+        Rectangle b = new Rectangle(5, 4, 9, 8);
+
+        AdjacencyResult result = analyzer.analyze(a, b);
+
+        assertEquals(AdjacencyResult.Type.NOT_ADJACENT, result.type());
+    }
+
+    @Test
+    @DisplayName("NOT adjacent - rectangles touch only at a single corner point")
+    void testCornerTouchNotAdjacent() {
+        // A's top-right corner and B's bottom-left corner meet at (3,3) — a single point, not a segment
+        Rectangle a = new Rectangle(0, 0, 3, 3);
+        Rectangle b = new Rectangle(3, 3, 6, 6);
+
+        AdjacencyResult result = analyzer.analyze(a, b);
+
+        assertEquals(AdjacencyResult.Type.NOT_ADJACENT, result.type());
+    }
+
+    @Test
+    @DisplayName("PROPER adjacency - B is below A (hits a.minY == b.maxY branch)")
+    void testProperAdjacencyBBelowA() {
+        // A's bottom edge and B's top edge both run from x=0 to x=4
+        Rectangle a = new Rectangle(0, 4, 4, 8);
+        Rectangle b = new Rectangle(0, 0, 4, 4);
+
+        AdjacencyResult result = analyzer.analyze(a, b);
+
+        assertEquals(AdjacencyResult.Type.PROPER, result.type());
+        assertTrue(result.isAdjacent());
+    }
+
 }

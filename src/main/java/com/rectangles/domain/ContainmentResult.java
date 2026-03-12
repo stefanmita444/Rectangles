@@ -3,7 +3,7 @@ package com.rectangles.domain;
 /**
  * Represents the result of a containment check between two rectangles.
  */
-public record ContainmentResult(com.rectangles.domain.ContainmentResult.Status status) {
+public record ContainmentResult(Status status) {
 
     public enum Status {
         /**

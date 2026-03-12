@@ -12,26 +12,9 @@ import java.util.List;
  */
 public record IntersectionResult(boolean hasIntersection, List<Point> intersectionPoints) {
 
-    public IntersectionResult(boolean hasIntersection, List<Point> intersectionPoints) {
-        this.hasIntersection = hasIntersection;
-        this.intersectionPoints = Collections.unmodifiableList(intersectionPoints);
-    }
-
-    /**
-     * Returns true if the edges of the two rectangles intersect.
-     */
-    @Override
-    public boolean hasIntersection() {
-        return hasIntersection;
-    }
-
-    /**
-     * Returns the list of points where the edges of the two rectangles cross.
-     * Returns an empty list if there is no intersection.
-     */
-    @Override
-    public List<Point> intersectionPoints() {
-        return intersectionPoints;
+    /** Wraps the point list in an unmodifiable view on construction. */
+    public IntersectionResult {
+        intersectionPoints = Collections.unmodifiableList(intersectionPoints);
     }
 
     @Override

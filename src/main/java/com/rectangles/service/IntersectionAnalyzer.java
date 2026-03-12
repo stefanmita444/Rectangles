@@ -56,7 +56,7 @@ public class IntersectionAnalyzer {
         for (double[] edgeA : edgesA) {
             for (double[] edgeB : edgesB) {
                 Point p = computeIntersection(edgeA, edgeB);
-                if (p != null && !points.contains(p)) {
+                if (p != null) {
                     points.add(p);
                 }
             }

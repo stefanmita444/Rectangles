@@ -67,9 +67,11 @@ public class IntersectionAnalyzerTest {
     }
 
     @Test
-    @DisplayName("Rectangle crossing on one axis - 2 intersection points")
-    void testHorizontalCross() {
-        // A is wide and short, B is narrow and tall — cross in the middle
+    @DisplayName("Cross-shape rectangles - edges cross at 4 points")
+    void testCrossShapeIntersection() {
+        // A is wide and short (y=2..5, x=0..8), B is narrow and tall (x=3..6, y=0..8)
+        // A's top edge (y=5) crosses B's left (x=3) at (3,5) and B's right (x=6) at (6,5)
+        // A's bottom edge (y=2) crosses B's left (x=3) at (3,2) and B's right (x=6) at (6,2)
         Rectangle a = new Rectangle(0, 2, 8, 5);
         Rectangle b = new Rectangle(3, 0, 6, 8);
 
@@ -77,6 +79,10 @@ public class IntersectionAnalyzerTest {
 
         assertTrue(result.hasIntersection());
         assertEquals(4, result.intersectionPoints().size());
+        assertTrue(result.intersectionPoints().contains(new Point(3, 5)));
+        assertTrue(result.intersectionPoints().contains(new Point(6, 5)));
+        assertTrue(result.intersectionPoints().contains(new Point(3, 2)));
+        assertTrue(result.intersectionPoints().contains(new Point(6, 2)));
     }
 
     @Test

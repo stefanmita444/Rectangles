@@ -7,28 +7,33 @@ import com.rectangles.domain.Rectangle;
 import com.rectangles.service.AdjacencyAnalyzer;
 import com.rectangles.service.ContainmentAnalyzer;
 import com.rectangles.service.IntersectionAnalyzer;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import java.util.Scanner;
 
 /**
  * Facade that exposes all three rectangle analysis operations.
  *
- * <p>Usage example:</p>
- * <pre>
- *   RectanglesApplication analyzer = new RectanglesApplication();
- *   Rectangle a = new Rectangle(0, 0, 4, 4);
- *   Rectangle b = new Rectangle(2, 2, 6, 6);
- *
- *   IntersectionResult  ir = analyzer.intersection(a, b);
- *   ContainmentResult   cr = analyzer.containment(a, b);
- *   AdjacencyResult     ar = analyzer.adjacency(a, b);
- * </pre>
+ * <p>Spring Boot entry point. The application starts via {@link #main}, which boots
+ * the Spring context. Once ready, {@link #run} executes a quick demo.
+ * The three analyzer beans are injected via constructor injection.</p>
  */
 @SpringBootApplication
-public class RectanglesApplication {
+public class RectanglesApplication implements CommandLineRunner {
 
-    private final IntersectionAnalyzer intersectionAnalyzer  = new IntersectionAnalyzer();
-    private final ContainmentAnalyzer containmentAnalyzer   = new ContainmentAnalyzer();
-    private final AdjacencyAnalyzer adjacencyAnalyzer     = new AdjacencyAnalyzer();
+    private final IntersectionAnalyzer intersectionAnalyzer;
+    private final ContainmentAnalyzer containmentAnalyzer;
+    private final AdjacencyAnalyzer adjacencyAnalyzer;
+
+    public RectanglesApplication(IntersectionAnalyzer intersectionAnalyzer,
+                                  ContainmentAnalyzer containmentAnalyzer,
+                                  AdjacencyAnalyzer adjacencyAnalyzer) {
+        this.intersectionAnalyzer = intersectionAnalyzer;
+        this.containmentAnalyzer  = containmentAnalyzer;
+        this.adjacencyAnalyzer    = adjacencyAnalyzer;
+    }
 
     /**
      * Determines whether the edges of the two rectangles cross each other
@@ -67,31 +72,88 @@ public class RectanglesApplication {
     }
 
     // -----------------------------------------------------------------------
-    // Quick demo
+    // Entry point
     // -----------------------------------------------------------------------
 
     public static void main(String[] args) {
-        RectanglesApplication analyzer = new RectanglesApplication();
+        SpringApplication.run(RectanglesApplication.class, args);
+    }
 
-        System.out.println("=== Intersection Demo ===");
-        Rectangle a = new Rectangle(0, 0, 4, 4);
-        Rectangle b = new Rectangle(2, 2, 6, 6);
-        IntersectionResult ir = analyzer.intersection(a, b);
-        System.out.println("A=" + a + "  B=" + b);
-        System.out.println("Result: " + ir);
+    // -----------------------------------------------------------------------
+    // Interactive CLI — runs after Spring context is ready
+    // -----------------------------------------------------------------------
 
-        System.out.println("\n=== Containment Demo ===");
-        Rectangle outer = new Rectangle(0, 0, 10, 10);
-        Rectangle inner = new Rectangle(2, 2, 5, 5);
-        ContainmentResult cr = analyzer.containment(outer, inner);
-        System.out.println("Outer=" + outer + "  Inner=" + inner);
-        System.out.println("Result: " + cr);
+    @Override
+    public void run(String... args) {
+        try (Scanner scanner = new Scanner(System.in)) {
+            System.out.println("╔══════════════════════════════╗");
+            System.out.println("║     Rectangle Analyzer CLI   ║");
+            System.out.println("╚══════════════════════════════╝");
 
-        System.out.println("\n=== Adjacency Demo ===");
-        Rectangle left  = new Rectangle(0, 0, 4, 4);
-        Rectangle right = new Rectangle(4, 0, 8, 4);
-        AdjacencyResult ar = analyzer.adjacency(left, right);
-        System.out.println("Left=" + left + "  Right=" + right);
-        System.out.println("Result: " + ar);
+            boolean running = true;
+            while (running) {
+                System.out.println("\nChoose an operation:");
+                System.out.println("  1 - Intersection");
+                System.out.println("  2 - Containment");
+                System.out.println("  3 - Adjacency");
+                System.out.println("  0 - Exit");
+                System.out.print("Option: ");
+
+                String choice = scanner.nextLine().trim();
+
+                switch (choice) {
+                    case "1" -> {
+                        System.out.println("\n-- Intersection --");
+                        Rectangle a = promptRectangle(scanner, "Rectangle A");
+                        Rectangle b = promptRectangle(scanner, "Rectangle B");
+                        if (a == null || b == null) break;
+                        IntersectionResult ir = intersection(a, b);
+                        System.out.println("Result: " + ir);
+                    }
+                    case "2" -> {
+                        System.out.println("\n-- Containment --");
+                        Rectangle outer = promptRectangle(scanner, "Outer rectangle");
+                        Rectangle inner = promptRectangle(scanner, "Inner rectangle");
+                        if (outer == null || inner == null) break;
+                        ContainmentResult cr = containment(outer, inner);
+                        System.out.println("Result: " + cr);
+                    }
+                    case "3" -> {
+                        System.out.println("\n-- Adjacency --");
+                        Rectangle a = promptRectangle(scanner, "Rectangle A");
+                        Rectangle b = promptRectangle(scanner, "Rectangle B");
+                        if (a == null || b == null) break;
+                        AdjacencyResult ar = adjacency(a, b);
+                        System.out.println("Result: " + ar);
+                    }
+                    case "0" -> {
+                        System.out.println("Goodbye.");
+                        running = false;
+                    }
+                    default -> System.out.println("Invalid option. Please enter 0, 1, 2 or 3.");
+                }
+            }
+        }
+    }
+
+    /**
+     * Prompts the user to enter coordinates for a rectangle.
+     * Returns null if the input is invalid, allowing the loop to continue.
+     */
+    private Rectangle promptRectangle(Scanner scanner, String label) {
+        try {
+            System.out.println(label + " — enter two corner points:");
+            System.out.print("  x1: "); double x1 = Double.parseDouble(scanner.nextLine().trim());
+            System.out.print("  y1: "); double y1 = Double.parseDouble(scanner.nextLine().trim());
+            System.out.print("  x2: "); double x2 = Double.parseDouble(scanner.nextLine().trim());
+            System.out.print("  y2: "); double y2 = Double.parseDouble(scanner.nextLine().trim());
+            return new Rectangle(x1, y1, x2, y2);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid number — please try again.");
+            return null;
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid rectangle: " + e.getMessage());
+            return null;
+        }
     }
 }

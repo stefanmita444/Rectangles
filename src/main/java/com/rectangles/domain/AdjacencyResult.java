@@ -3,7 +3,7 @@ package com.rectangles.domain;
 /**
  * Represents the result of an adjacency check between two rectangles.
  */
-public record AdjacencyResult(com.rectangles.domain.AdjacencyResult.Type type) {
+public record AdjacencyResult(Type type) {
 
     public enum Type {
         /**

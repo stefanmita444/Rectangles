@@ -31,6 +31,26 @@ class RectangleTest {
     }
 
     @Test
+    @DisplayName("Rectangle with negative coordinates normalizes correctly")
+    void testNegativeCoordinates() {
+        Rectangle r = new Rectangle(-5, -3, -1, -1);
+        assertEquals(-5, r.minX);
+        assertEquals(-3, r.minY);
+        assertEquals(-1, r.maxX);
+        assertEquals(-1, r.maxY);
+    }
+
+    @Test
+    @DisplayName("Rectangle spanning negative to positive coordinates")
+    void testCrossOrigin() {
+        Rectangle r = new Rectangle(-4, -4, 4, 4);
+        assertEquals(-4, r.minX);
+        assertEquals(-4, r.minY);
+        assertEquals(4,  r.maxX);
+        assertEquals(4,  r.maxY);
+    }
+
+    @Test
     @DisplayName("Corner accessors return correct points")
     void testCornerAccessors() {
         Rectangle r = new Rectangle(1, 2, 5, 6);

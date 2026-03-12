@@ -94,4 +94,38 @@ public class ContainmentAnalyzerTest {
         assertEquals(ContainmentResult.Status.INTERSECTION_NO_CONTAINMENT, result.status());
     }
 
+    @Test
+    @DisplayName("A fully below B - no containment (hits a.maxY <= b.minY branch)")
+    void testNoContainmentABelowB() {
+        // X ranges overlap but A is entirely below B
+        Rectangle a = new Rectangle(0, 0, 4, 2);
+        Rectangle b = new Rectangle(0, 3, 4, 6);
+
+        ContainmentResult result = analyzer.analyze(a, b);
+
+        assertEquals(ContainmentResult.Status.NO_CONTAINMENT, result.status());
+    }
+
+    @Test
+    @DisplayName("B fully to the left of A - no containment (hits b.maxX <= a.minX branch)")
+    void testNoContainmentBLeftOfA() {
+        Rectangle a = new Rectangle(5, 0, 9, 4);
+        Rectangle b = new Rectangle(0, 0, 3, 4);
+
+        ContainmentResult result = analyzer.analyze(a, b);
+
+        assertEquals(ContainmentResult.Status.NO_CONTAINMENT, result.status());
+    }
+
+    @Test
+    @DisplayName("B fully below A - no containment (hits b.maxY <= a.minY branch)")
+    void testNoContainmentBBelowA() {
+        Rectangle a = new Rectangle(0, 5, 4, 9);
+        Rectangle b = new Rectangle(0, 0, 4, 3);
+
+        ContainmentResult result = analyzer.analyze(a, b);
+
+        assertEquals(ContainmentResult.Status.NO_CONTAINMENT, result.status());
+    }
+
 }

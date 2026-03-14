@@ -112,10 +112,10 @@ public class RectanglesApplication implements CommandLineRunner {
                     }
                     case "2" -> {
                         System.out.println("\n-- Containment --");
-                        Rectangle outer = promptRectangle(scanner, "Outer rectangle");
-                        Rectangle inner = promptRectangle(scanner, "Inner rectangle");
-                        if (outer == null || inner == null) break;
-                        ContainmentResult cr = containment(outer, inner);
+                        Rectangle a = promptRectangle(scanner, "Rectangle A");
+                        Rectangle b = promptRectangle(scanner, "Rectangle B");
+                        if (a == null || b == null) break;
+                        ContainmentResult cr = containment(a, b);
                         System.out.println("Result: " + cr);
                     }
                     case "3" -> {

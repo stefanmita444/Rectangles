@@ -37,6 +37,9 @@ public class ContainmentAnalyzer {
         if (isContained(outer, inner)) {
             return new ContainmentResult(Status.CONTAINED);
         }
+        if (isContained(inner, outer)) {
+            return new ContainmentResult(Status.CONTAINED);
+        }
         if (overlaps(outer, inner)) {
             return new ContainmentResult(Status.INTERSECTION_NO_CONTAINMENT);
         }

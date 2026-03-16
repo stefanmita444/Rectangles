@@ -1,33 +1,22 @@
 package com.rectangles.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.ToString;
+
 /**
  * Represents the result of a containment check between two rectangles.
  */
-public record ContainmentResult(Status status) {
+@ToString
+@AllArgsConstructor
+public class ContainmentResult extends Result {
 
-    public enum Status {
-        /**
-         * Rectangle B is wholly inside Rectangle A.
-         */
-        CONTAINED,
-
-        /**
-         * The rectangles overlap but neither is wholly inside the other.
-         */
-        INTERSECTION_NO_CONTAINMENT,
-
-        /**
-         * The rectangles do not overlap at all.
-         */
-        NO_CONTAINMENT
-    }
+    private final Status status;
 
     public boolean isContained() {
         return status == Status.CONTAINED;
     }
 
-    @Override
-    public String toString() {
-        return "ContainmentResult{status=" + status + "}";
+    public Status status() {
+        return this.status;
     }
 }

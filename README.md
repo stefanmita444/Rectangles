@@ -31,24 +31,44 @@ java -version
 ```
 src/
 ├── main/java/com/rectangles/
-│   ├── RectanglesApplication.java        # Entry point and facade
-│   ├── domain/
-│   │   ├── Rectangle.java                # Rectangle model (two corners)
-│   │   ├── Point.java                    # 2D point record
-│   │   ├── IntersectionResult.java       # Result object for intersection
-│   │   ├── ContainmentResult.java        # Result object for containment
-│   │   └── AdjacencyResult.java          # Result object for adjacency
-│   └── service/
-│       ├── IntersectionAnalyzer.java     # @Service — intersection logic
-│       ├── ContainmentAnalyzer.java      # @Service — containment logic
-│       └── AdjacencyAnalyzer.java        # @Service — adjacency logic
+│   ├── RectanglesApplication.java        # Spring Boot entry point
+│   ├── config/
+│   │   └── CliRunner.java                # Interactive CLI (active on 'cli' profile only)
+│   ├── controller/
+│   │   └── AnalyzerController.java       # REST endpoints (/analyze/*)
+│   ├── service/
+│   │   ├── AnalyzerService.java          # Routes requests to the correct strategy
+│   │   └── strategy/
+│   │       ├── AnalyzerStrategy.java     # Strategy interface
+│   │       ├── IntersectionStrategy.java # Intersection logic
+│   │       ├── ContainmentStrategy.java  # Containment logic
+│   │       └── AdjacencyStrategy.java    # Adjacency logic
+│   ├── dto/
+│   │   ├── Request.java                  # Abstract base request
+│   │   ├── IntersectionRequest.java      # Request for intersection
+│   │   ├── ContainmentRequest.java       # Request for containment
+│   │   └── AdjacencyRequest.java         # Request for adjacency
+│   └── domain/
+│       ├── Rectangle.java                # Rectangle model (two corners)
+│       ├── Point.java                    # 2D point
+│       ├── Segment.java                  # Line segment (start + end Point)
+│       ├── Result.java                   # Abstract base result
+│       ├── IntersectionResult.java       # Result for intersection
+│       ├── ContainmentResult.java        # Result for containment
+│       ├── AdjacencyResult.java          # Result for adjacency
+│       ├── Status.java                   # Enum — containment status
+│       └── Type.java                     # Enum — adjacency type
 └── test/java/com/rectangles/
     ├── domain/
-    │   └── RectangleTest.java            # Model validation tests
-    └── service/
-        ├── IntersectionAnalyzerTest.java # Intersection tests
-        ├── ContainmentAnalyzerTest.java  # Containment tests
-        └── AdjacencyAnalyzerTest.java    # Adjacency tests
+    │   ├── RectangleTest.java
+    │   └── SegmentTest.java
+    ├── service/
+    │   ├── AnalyzerServiceTest.java
+    │   ├── IntersectionStrategyTest.java
+    │   ├── ContainmentStrategyTest.java
+    │   └── AdjacencyStrategyTest.java
+    └── controller/
+        └── AnalyzerControllerTest.java
 ```
 
 ---
@@ -70,15 +90,25 @@ Force re-run even if nothing has changed (Gradle caches results by default):
 ./gradlew clean test --rerun-tasks
 ```
 
-### Run the application
+### Run the application (REST API)
 ```bash
 ./gradlew bootRun
+```
+
+### Run the application (CLI mode)
+```bash
+./gradlew bootRun --args='--spring.profiles.active=cli'
 ```
 
 Or build and run the JAR directly:
 ```bash
 ./gradlew bootJar
+
+# REST API
 java -jar build/libs/Rectangles-0.0.1-SNAPSHOT.jar
+
+# CLI mode
+java -jar build/libs/Rectangles-0.0.1-SNAPSHOT.jar --spring.profiles.active=cli
 ```
 
 ### View test report
@@ -107,15 +137,70 @@ All dependencies are pulled automatically from Maven Central on first build.
 
 | Dependency | Scope | Purpose |
 |---|---|---|
+| `spring-boot-starter-web` | implementation | Spring MVC + embedded Tomcat for REST API |
 | `spring-boot-starter` | implementation | Core Spring Boot framework |
+| `lombok` | implementation | Boilerplate reduction (`@Getter`, `@Setter`, etc.) |
 | `spring-boot-starter-test` | testImplementation | JUnit 5, AssertJ, Mockito |
 | `junit-platform-launcher` | testRuntimeOnly | Required to run JUnit 5 tests with Gradle |
 
 ---
 
+## REST API
+
+The application exposes a REST API under `/analyze`. All endpoints accept a JSON body with `rectangleA` and `rectangleB`.
+
+### Request body format
+
+```json
+{
+  "rectangleA": { "minX": 0, "minY": 0, "maxX": 4, "maxY": 4 },
+  "rectangleB": { "minX": 2, "minY": 2, "maxX": 6, "maxY": 6 }
+}
+```
+
+### Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/analyze/intersection` | Check if edges cross and return crossing points |
+| `GET` | `/analyze/containment` | Check if one rectangle is inside the other |
+| `GET` | `/analyze/adjacency` | Check if rectangles share a boundary |
+
+### Example — Intersection
+
+**Request**
+```
+GET /analyze/intersection
+```
+```json
+{
+  "rectangleA": { "minX": 0, "minY": 0, "maxX": 4, "maxY": 4 },
+  "rectangleB": { "minX": 2, "minY": 2, "maxX": 6, "maxY": 6 }
+}
+```
+
+**Response**
+```json
+{
+  "hasIntersection": true,
+  "intersectionPoints": [
+    { "x": 4.0, "y": 2.0 },
+    { "x": 2.0, "y": 4.0 }
+  ]
+}
+```
+
+---
+
 ## Using the CLI
 
-Run the application with `./gradlew bootRun`. You will be presented with an interactive menu:
+The CLI is inactive by default. Start the application with the `cli` profile to enable it:
+
+```bash
+./gradlew bootRun --args='--spring.profiles.active=cli'
+```
+
+You will be presented with an interactive menu:
 
 ```
 ╔══════════════════════════════╗
@@ -144,6 +229,20 @@ You are entering **point 1** as `(x1, y1)` and **point 2** as `(x2, y2)`. Any tw
 
 ---
 
+## Architecture
+
+Requests flow through three layers:
+
+```
+AnalyzerController  →  AnalyzerService  →  AnalyzerStrategy (IntersectionStrategy | ContainmentStrategy | AdjacencyStrategy)
+```
+
+- **`AnalyzerController`** — receives HTTP requests and maps them to typed `Request` DTOs
+- **`AnalyzerService`** — inspects the request type and delegates to the matching strategy
+- **`AnalyzerStrategy`** — interface with a single `analyze(Request) → Result` method; each implementation casts the request to its specific subtype and executes the algorithm
+
+---
+
 ## The Algorithms
 
 ### Rectangle Model
@@ -154,9 +253,9 @@ Defined by two corners `(x1, y1)` and `(x2, y2)`. The constructor normalizes inp
 ### Intersection
 Checks whether the **edges** of two rectangles physically cross and returns the exact crossing points.
 
-Each rectangle has 4 edges (top, bottom, left, right). All 16 pairs are tested:
+Each rectangle has 4 edges represented as `Segment` objects (top, bottom, left, right). All 16 pairs are tested:
 - Same-direction pairs (both horizontal or both vertical) are parallel — skipped
-- One horizontal + one vertical — crossing point is `(verticalEdge.x, horizontalEdge.y)`, counted only if it falls **strictly inside** both segments
+- One horizontal + one vertical — crossing point is `(vert.constantX, horiz.constantY)`, counted only if it falls **strictly inside** both segments
 
 Strict inequalities (`<` not `<=`) ensure rectangles that merely touch along a shared edge are not counted as intersecting — keeping Intersection and Adjacency cleanly separated.
 
@@ -195,20 +294,23 @@ Checks whether two rectangles share a side or part of a side. First confirms the
 
 ## Test Suite
 
-Tests use JUnit 5. Service tests use `@ExtendWith(SpringExtension.class)` and `@ContextConfiguration` to verify Spring bean wiring alongside algorithm correctness.
+Tests use JUnit 5. Strategy tests use `@ExtendWith(SpringExtension.class)` and `@ContextConfiguration` to verify Spring bean wiring alongside algorithm correctness. The service test uses Mockito to verify routing logic. The controller test uses `@WebMvcTest` with `MockMvc`.
 
 | Test Class | Tests | Coverage |
 |---|---|---|
 | `RectangleTest` | 6 | Normalization, zero-dimension validation, corner accessors, negative coordinates, cross-origin |
-| `IntersectionAnalyzerTest` | 6 | Overlapping, separate, contained, cross-shape (4 points verified), adjacent (no crossing), partial overlap |
-| `ContainmentAnalyzerTest` | 9 | Fully contained, boundary, separate, overlap, identical, reversed sizes, A below B, B left of A, B below A |
-| `AdjacencyAnalyzerTest` | 13 | Proper (all 4 directions), sub-line (both directions), partial, not adjacent (gap, diagonal, x-gap, y-gap, overlapping, corner-touch) |
+| `SegmentTest` | 6 | isHorizontal, constantX/Y, minX/maxX/minY/maxY — including reversed point order |
+| `IntersectionStrategyTest` | 6 | Overlapping, separate, contained, cross-shape (4 points verified), touching edge, partial overlap |
+| `ContainmentStrategyTest` | 9 | Fully contained, boundary, separate, overlap, identical, reversed inputs, A below B, B left of A, B below A |
+| `AdjacencyStrategyTest` | 13 | Proper (all 4 directions), sub-line (both directions), partial, not adjacent (gap, diagonal, x-gap, y-gap, overlapping, corner-touch) |
+| `AnalyzerServiceTest` | 4 | Routing to each strategy, null request handling |
+| `AnalyzerControllerTest` | 3 | 200 response for each endpoint |
 
 ---
 
 ## Result Objects
 
-Each algorithm returns a dedicated result record carrying both a classification and any associated data.
+Each algorithm returns a dedicated result object extending the `Result` base class.
 
 | Class | Fields | Values |
 |---|---|---|

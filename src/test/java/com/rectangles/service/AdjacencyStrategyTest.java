@@ -2,6 +2,9 @@ package com.rectangles.service;
 
 import com.rectangles.domain.AdjacencyResult;
 import com.rectangles.domain.Rectangle;
+import com.rectangles.domain.Type;
+import com.rectangles.dto.AdjacencyRequest;
+import com.rectangles.service.strategy.AdjacencyStrategy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,11 +15,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {AdjacencyAnalyzer.class})
-public class AdjacencyAnalyzerTest {
+@ContextConfiguration(classes = {AdjacencyStrategy.class})
+public class AdjacencyStrategyTest {
 
     @Autowired
-    private AdjacencyAnalyzer analyzer;
+    private AdjacencyStrategy analyzer;
 
     @Test
     @DisplayName("PROPER adjacency - full side shared horizontally")
@@ -25,9 +28,11 @@ public class AdjacencyAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 4, 4);
         Rectangle b = new Rectangle(4, 0, 8, 4);
 
-        AdjacencyResult result = analyzer.analyze(a, b);
+        AdjacencyRequest adjacencyRequest = new AdjacencyRequest(a, b);
 
-        assertEquals(AdjacencyResult.Type.PROPER, result.type());
+        AdjacencyResult result = analyzer.analyze(adjacencyRequest);
+
+        assertEquals(Type.PROPER, result.type());
         assertTrue(result.isAdjacent());
     }
 
@@ -38,9 +43,11 @@ public class AdjacencyAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 4, 4);
         Rectangle b = new Rectangle(0, 4, 4, 8);
 
-        AdjacencyResult result = analyzer.analyze(a, b);
+        AdjacencyRequest adjacencyRequest = new AdjacencyRequest(a, b);
 
-        assertEquals(AdjacencyResult.Type.PROPER, result.type());
+        AdjacencyResult result = analyzer.analyze(adjacencyRequest);
+
+        assertEquals(Type.PROPER, result.type());
     }
 
     @Test
@@ -51,9 +58,11 @@ public class AdjacencyAnalyzerTest {
         Rectangle a = new Rectangle(0, 2, 4, 6);
         Rectangle b = new Rectangle(4, 0, 8, 8);
 
-        AdjacencyResult result = analyzer.analyze(a, b);
+        AdjacencyRequest adjacencyRequest = new AdjacencyRequest(a, b);
 
-        assertEquals(AdjacencyResult.Type.SUB_LINE, result.type());
+        AdjacencyResult result = analyzer.analyze(adjacencyRequest);
+
+        assertEquals(Type.SUB_LINE, result.type());
     }
 
     @Test
@@ -63,9 +72,11 @@ public class AdjacencyAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 4, 8);
         Rectangle b = new Rectangle(4, 2, 8, 5);
 
-        AdjacencyResult result = analyzer.analyze(a, b);
+        AdjacencyRequest adjacencyRequest = new AdjacencyRequest(a, b);
 
-        assertEquals(AdjacencyResult.Type.SUB_LINE, result.type());
+        AdjacencyResult result = analyzer.analyze(adjacencyRequest);
+
+        assertEquals(Type.SUB_LINE, result.type());
     }
 
     @Test
@@ -76,9 +87,11 @@ public class AdjacencyAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 4, 5);
         Rectangle b = new Rectangle(4, 3, 8, 8);
 
-        AdjacencyResult result = analyzer.analyze(a, b);
+        AdjacencyRequest adjacencyRequest = new AdjacencyRequest(a, b);
 
-        assertEquals(AdjacencyResult.Type.PARTIAL, result.type());
+        AdjacencyResult result = analyzer.analyze(adjacencyRequest);
+
+        assertEquals(Type.PARTIAL, result.type());
     }
 
     @Test
@@ -87,9 +100,11 @@ public class AdjacencyAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 4, 4);
         Rectangle b = new Rectangle(5, 0, 9, 4); // gap of 1 unit
 
-        AdjacencyResult result = analyzer.analyze(a, b);
+        AdjacencyRequest adjacencyRequest = new AdjacencyRequest(a, b);
 
-        assertEquals(AdjacencyResult.Type.NOT_ADJACENT, result.type());
+        AdjacencyResult result = analyzer.analyze(adjacencyRequest);
+
+        assertEquals(Type.NOT_ADJACENT, result.type());
         assertFalse(result.isAdjacent());
     }
 
@@ -99,9 +114,11 @@ public class AdjacencyAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 3, 3);
         Rectangle b = new Rectangle(5, 5, 8, 8);
 
-        AdjacencyResult result = analyzer.analyze(a, b);
+        AdjacencyRequest adjacencyRequest = new AdjacencyRequest(a, b);
 
-        assertEquals(AdjacencyResult.Type.NOT_ADJACENT, result.type());
+        AdjacencyResult result = analyzer.analyze(adjacencyRequest);
+
+        assertEquals(Type.NOT_ADJACENT, result.type());
     }
 
     @Test
@@ -112,9 +129,11 @@ public class AdjacencyAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 4, 2);
         Rectangle b = new Rectangle(4, 5, 8, 8);
 
-        AdjacencyResult result = analyzer.analyze(a, b);
+        AdjacencyRequest adjacencyRequest = new AdjacencyRequest(a, b);
 
-        assertEquals(AdjacencyResult.Type.NOT_ADJACENT, result.type());
+        AdjacencyResult result = analyzer.analyze(adjacencyRequest);
+
+        assertEquals(Type.NOT_ADJACENT, result.type());
     }
 
     @Test
@@ -123,9 +142,11 @@ public class AdjacencyAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 5, 5);
         Rectangle b = new Rectangle(3, 3, 8, 8);
 
-        AdjacencyResult result = analyzer.analyze(a, b);
+        AdjacencyRequest adjacencyRequest = new AdjacencyRequest(a, b);
 
-        assertEquals(AdjacencyResult.Type.NOT_ADJACENT, result.type());
+        AdjacencyResult result = analyzer.analyze(adjacencyRequest);
+
+        assertEquals(Type.NOT_ADJACENT, result.type());
     }
 
     @Test
@@ -135,9 +156,11 @@ public class AdjacencyAnalyzerTest {
         Rectangle a = new Rectangle(4, 0, 8, 4);
         Rectangle b = new Rectangle(0, 0, 4, 4);
 
-        AdjacencyResult result = analyzer.analyze(a, b);
+        AdjacencyRequest adjacencyRequest = new AdjacencyRequest(a, b);
 
-        assertEquals(AdjacencyResult.Type.PROPER, result.type());
+        AdjacencyResult result = analyzer.analyze(adjacencyRequest);
+
+        assertEquals(Type.PROPER, result.type());
         assertTrue(result.isAdjacent());
     }
 
@@ -148,9 +171,11 @@ public class AdjacencyAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 2, 4);
         Rectangle b = new Rectangle(5, 4, 9, 8);
 
-        AdjacencyResult result = analyzer.analyze(a, b);
+        AdjacencyRequest adjacencyRequest = new AdjacencyRequest(a, b);
 
-        assertEquals(AdjacencyResult.Type.NOT_ADJACENT, result.type());
+        AdjacencyResult result = analyzer.analyze(adjacencyRequest);
+
+        assertEquals(Type.NOT_ADJACENT, result.type());
     }
 
     @Test
@@ -160,9 +185,11 @@ public class AdjacencyAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 3, 3);
         Rectangle b = new Rectangle(3, 3, 6, 6);
 
-        AdjacencyResult result = analyzer.analyze(a, b);
+        AdjacencyRequest adjacencyRequest = new AdjacencyRequest(a, b);
 
-        assertEquals(AdjacencyResult.Type.NOT_ADJACENT, result.type());
+        AdjacencyResult result = analyzer.analyze(adjacencyRequest);
+
+        assertEquals(Type.NOT_ADJACENT, result.type());
     }
 
     @Test
@@ -172,9 +199,11 @@ public class AdjacencyAnalyzerTest {
         Rectangle a = new Rectangle(0, 4, 4, 8);
         Rectangle b = new Rectangle(0, 0, 4, 4);
 
-        AdjacencyResult result = analyzer.analyze(a, b);
+        AdjacencyRequest adjacencyRequest = new AdjacencyRequest(a, b);
 
-        assertEquals(AdjacencyResult.Type.PROPER, result.type());
+        AdjacencyResult result = analyzer.analyze(adjacencyRequest);
+
+        assertEquals(Type.PROPER, result.type());
         assertTrue(result.isAdjacent());
     }
 

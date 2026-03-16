@@ -2,7 +2,9 @@ package com.rectangles.service;
 
 import com.rectangles.domain.ContainmentResult;
 import com.rectangles.domain.Rectangle;
-import org.junit.jupiter.api.BeforeEach;
+import com.rectangles.domain.Status;
+import com.rectangles.dto.ContainmentRequest;
+import com.rectangles.service.strategy.ContainmentStrategy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,38 +15,35 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {ContainmentAnalyzer.class})
-public class ContainmentAnalyzerTest {
+@ContextConfiguration(classes = {ContainmentStrategy.class})
+public class ContainmentStrategyTest {
 
     @Autowired
-    private ContainmentAnalyzer analyzer;
-
-    @BeforeEach
-    void setup() {
-        analyzer = new ContainmentAnalyzer();
-    }
+    private ContainmentStrategy analyzer;
 
     @Test
-    @DisplayName("Inner rectangle fully contained within outer")
+    @DisplayName("b rectangle fully contained within a")
     void testFullyContained() {
-        Rectangle outer = new Rectangle(0, 0, 10, 10);
-        Rectangle inner = new Rectangle(2, 2, 7, 7);
+        Rectangle a = new Rectangle(0, 0, 10, 10);
+        Rectangle b = new Rectangle(2, 2, 7, 7);
 
-        ContainmentResult result = analyzer.analyze(outer, inner);
+        ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
+        ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(ContainmentResult.Status.CONTAINED, result.status());
+        assertEquals(Status.CONTAINED, result.status());
         assertTrue(result.isContained());
     }
 
     @Test
-    @DisplayName("Inner rectangle touching the boundary is still contained")
+    @DisplayName("b rectangle touching the boundary is still contained")
     void testContainedOnBoundary() {
         Rectangle a = new Rectangle(0, 0, 10, 10);
         Rectangle b = new Rectangle(0, 0, 5, 5); // shares bottom-left corner
 
-        ContainmentResult result = analyzer.analyze(a, b);
+        ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
+        ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(ContainmentResult.Status.CONTAINED, result.status());
+        assertEquals(Status.CONTAINED, result.status());
     }
 
     @Test
@@ -53,9 +52,10 @@ public class ContainmentAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 3, 3);
         Rectangle b = new Rectangle(5, 5, 9, 9);
 
-        ContainmentResult result = analyzer.analyze(a, b);
+        ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
+        ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(ContainmentResult.Status.NO_CONTAINMENT, result.status());
+        assertEquals(Status.NO_CONTAINMENT, result.status());
         assertFalse(result.isContained());
     }
 
@@ -65,9 +65,10 @@ public class ContainmentAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 5, 5);
         Rectangle b = new Rectangle(3, 3, 8, 8);
 
-        ContainmentResult result = analyzer.analyze(a, b);
+        ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
+        ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(ContainmentResult.Status.INTERSECTION_NO_CONTAINMENT, result.status());
+        assertEquals(Status.INTERSECTION_NO_CONTAINMENT, result.status());
         assertFalse(result.isContained());
     }
 
@@ -77,20 +78,22 @@ public class ContainmentAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 5, 5);
         Rectangle b = new Rectangle(0, 0, 5, 5);
 
-        ContainmentResult result = analyzer.analyze(a, b);
+        ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
+        ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(ContainmentResult.Status.CONTAINED, result.status());
+        assertEquals(Status.CONTAINED, result.status());
     }
 
     @Test
-    @DisplayName("Inner rectangle fully contained reversed")
-    void testFullyContainedInnerOuter() {
+    @DisplayName("b rectangle fully contained reversed")
+    void testFullyContainedba() {
         Rectangle a = new Rectangle(0, 0, 10, 10);
         Rectangle b = new Rectangle(2, 2, 7, 7);
 
-        ContainmentResult result = analyzer.analyze(b, a);
+        ContainmentRequest containmentRequest = new ContainmentRequest(b, a);
+        ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(ContainmentResult.Status.CONTAINED, result.status());
+        assertEquals(Status.CONTAINED, result.status());
         assertTrue(result.isContained());
     }
 
@@ -101,9 +104,10 @@ public class ContainmentAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 4, 2);
         Rectangle b = new Rectangle(0, 3, 4, 6);
 
-        ContainmentResult result = analyzer.analyze(a, b);
+        ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
+        ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(ContainmentResult.Status.NO_CONTAINMENT, result.status());
+        assertEquals(Status.NO_CONTAINMENT, result.status());
     }
 
     @Test
@@ -112,9 +116,10 @@ public class ContainmentAnalyzerTest {
         Rectangle a = new Rectangle(5, 0, 9, 4);
         Rectangle b = new Rectangle(0, 0, 3, 4);
 
-        ContainmentResult result = analyzer.analyze(a, b);
+        ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
+        ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(ContainmentResult.Status.NO_CONTAINMENT, result.status());
+        assertEquals(Status.NO_CONTAINMENT, result.status());
     }
 
     @Test
@@ -123,9 +128,10 @@ public class ContainmentAnalyzerTest {
         Rectangle a = new Rectangle(0, 5, 4, 9);
         Rectangle b = new Rectangle(0, 0, 4, 3);
 
-        ContainmentResult result = analyzer.analyze(a, b);
+        ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
+        ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(ContainmentResult.Status.NO_CONTAINMENT, result.status());
+        assertEquals(Status.NO_CONTAINMENT, result.status());
     }
 
 }

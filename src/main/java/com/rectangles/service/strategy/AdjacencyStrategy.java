@@ -1,8 +1,10 @@
-package com.rectangles.service;
+package com.rectangles.service.strategy;
 
 import com.rectangles.domain.AdjacencyResult;
-import com.rectangles.domain.AdjacencyResult.Type;
 import com.rectangles.domain.Rectangle;
+import com.rectangles.domain.Type;
+import com.rectangles.dto.AdjacencyRequest;
+import com.rectangles.dto.Request;
 import org.springframework.stereotype.Service;
 
 /**
@@ -30,16 +32,21 @@ import org.springframework.stereotype.Service;
  * </ul>
  */
 @Service
-public class AdjacencyAnalyzer {
+public class AdjacencyStrategy implements AnalyzerStrategy{
 
     /**
      * Analyzes the adjacency relationship between two rectangles.
      *
-     * @param a the first rectangle
-     * @param b the second rectangle
+     * @param request the request containing the 2 rectangles
      * @return an {@link AdjacencyResult} describing the relationship
      */
-    public AdjacencyResult analyze(Rectangle a, Rectangle b) {
+    @Override
+    public AdjacencyResult analyze(Request request) {
+
+        AdjacencyRequest adjacencyRequest = (AdjacencyRequest) request;
+
+        Rectangle a = adjacencyRequest.getRectangleA();
+        Rectangle b = adjacencyRequest.getRectangleB();
 
         // Check vertical shared boundaries (left/right edges)
         if (a.maxX == b.minX || a.minX == b.maxX) {

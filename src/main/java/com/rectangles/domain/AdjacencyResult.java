@@ -1,41 +1,25 @@
 package com.rectangles.domain;
 
+import lombok.AllArgsConstructor;
+
 /**
  * Represents the result of an adjacency check between two rectangles.
  */
-public record AdjacencyResult(Type type) {
+@AllArgsConstructor
+public class AdjacencyResult extends Result {
 
-    public enum Type {
-        /**
-         * One full side of rectangle A exactly matches one full side of rectangle B.
-         * Example: A's right edge and B's left edge are the same segment.
-         */
-        PROPER,
-
-        /**
-         * One side of rectangle A is wholly contained within a side of rectangle B
-         * (but does not span the full length of B's side).
-         */
-        SUB_LINE,
-
-        /**
-         * A portion of a side of rectangle A overlaps with a portion of a side
-         * of rectangle B, but neither is fully contained in the other.
-         */
-        PARTIAL,
-
-        /**
-         * The rectangles do not share any side or side segment.
-         */
-        NOT_ADJACENT
-    }
+    private final Type type;
 
     public boolean isAdjacent() {
-        return type != Type.NOT_ADJACENT;
+        return this.type != Type.NOT_ADJACENT;
     }
 
     @Override
     public String toString() {
         return "AdjacencyResult{type=" + type + "}";
+    }
+
+    public Type type() {
+        return this.type;
     }
 }

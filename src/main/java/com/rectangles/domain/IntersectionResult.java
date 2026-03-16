@@ -1,5 +1,10 @@
 package com.rectangles.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -10,16 +15,21 @@ import java.util.List;
  * cross each other. A rectangle wholly contained inside another does NOT
  * produce an intersection result.</p>
  */
-public record IntersectionResult(boolean hasIntersection, List<Point> intersectionPoints) {
+@ToString
+@AllArgsConstructor
+@Getter
+@Setter
+public class IntersectionResult extends Result {
+
+    private final boolean hasIntersection;
+    private final List<Point> intersectionPoints;
 
     /** Wraps the point list in an unmodifiable view on construction. */
-    public IntersectionResult {
-        intersectionPoints = Collections.unmodifiableList(intersectionPoints);
+    public List<Point> intersectionPoints() {
+        return Collections.unmodifiableList(this.intersectionPoints);
     }
 
-    @Override
-    public String toString() {
-        return "IntersectionResult{hasIntersection=" + hasIntersection
-            + ", points=" + intersectionPoints + "}";
+    public boolean hasIntersection() {
+        return this.hasIntersection;
     }
 }

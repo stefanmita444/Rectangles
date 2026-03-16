@@ -1,5 +1,10 @@
 package com.rectangles.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 /**
  * Represents an axis-aligned rectangle defined by two corner points.
  *
@@ -13,19 +18,22 @@ package com.rectangles.domain;
  *   // minX=1, minY=1, maxX=4, maxY=3
  * </pre>
  */
+@Getter
+@Setter
+@NoArgsConstructor
 public class Rectangle {
 
     /** Left edge x-coordinate */
-    public final double minX;
+    public double minX;
 
     /** Bottom edge y-coordinate */
-    public final double minY;
+    public double minY;
 
     /** Right edge x-coordinate */
-    public final double maxX;
+    public double maxX;
 
     /** Top edge y-coordinate */
-    public final double maxY;
+    public double maxY;
 
     /**
      * Constructs a rectangle from two corner points.
@@ -37,6 +45,7 @@ public class Rectangle {
      * @param y2 y-coordinate of the second corner
      * @throws IllegalArgumentException if the rectangle has zero width or height
      */
+    @JsonIgnore
     public Rectangle(double x1, double y1, double x2, double y2) {
         if (x1 == x2) throw new IllegalArgumentException("Rectangle cannot have zero width.");
         if (y1 == y2) throw new IllegalArgumentException("Rectangle cannot have zero height.");

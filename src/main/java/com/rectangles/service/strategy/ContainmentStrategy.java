@@ -1,8 +1,10 @@
-package com.rectangles.service;
+package com.rectangles.service.strategy;
 
 import com.rectangles.domain.Rectangle;
 import com.rectangles.domain.ContainmentResult;
-import com.rectangles.domain.ContainmentResult.Status;
+import com.rectangles.domain.Status;
+import com.rectangles.dto.ContainmentRequest;
+import com.rectangles.dto.Request;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,7 +22,7 @@ import org.springframework.stereotype.Service;
  * overlap at all (intersection without containment), or are fully separate.</p>
  */
 @Service
-public class ContainmentAnalyzer {
+public class ContainmentStrategy implements AnalyzerStrategy {
 
     /**
      * Checks whether rectangle {@code inner} is wholly contained within
@@ -29,18 +31,20 @@ public class ContainmentAnalyzer {
      * <p>The check is directional: it asks "is {@code inner} inside
      * {@code outer}?". To check the reverse, swap the arguments.</p>
      *
-     * @param outer the candidate containing rectangle
-     * @param inner the candidate contained rectangle
+     * @param request the request containing the 2 rectangles
      * @return a {@link ContainmentResult} describing the relationship
      */
-    public ContainmentResult analyze(Rectangle outer, Rectangle inner) {
-        if (isContained(outer, inner)) {
+    @Override
+    public ContainmentResult analyze(Request request) {
+        ContainmentRequest containmentRequest = (ContainmentRequest) request;
+
+        if (isContained(containmentRequest.getRectangleA(), containmentRequest.getRectangleB())) {
             return new ContainmentResult(Status.CONTAINED);
         }
-        if (isContained(inner, outer)) {
+        if (isContained(containmentRequest.getRectangleB(), containmentRequest.getRectangleA())) {
             return new ContainmentResult(Status.CONTAINED);
         }
-        if (overlaps(outer, inner)) {
+        if (overlaps(containmentRequest.getRectangleA(), containmentRequest.getRectangleB())) {
             return new ContainmentResult(Status.INTERSECTION_NO_CONTAINMENT);
         }
         return new ContainmentResult(Status.NO_CONTAINMENT);

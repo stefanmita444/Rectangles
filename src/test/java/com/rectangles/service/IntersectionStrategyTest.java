@@ -3,7 +3,8 @@ package com.rectangles.service;
 import com.rectangles.domain.IntersectionResult;
 import com.rectangles.domain.Point;
 import com.rectangles.domain.Rectangle;
-import org.junit.jupiter.api.BeforeEach;
+import com.rectangles.dto.IntersectionRequest;
+import com.rectangles.service.strategy.IntersectionStrategy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,16 +15,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {IntersectionAnalyzer.class})
-public class IntersectionAnalyzerTest {
+@ContextConfiguration(classes = {IntersectionStrategy.class})
+public class IntersectionStrategyTest {
 
     @Autowired
-    private IntersectionAnalyzer analyzer;
-
-    @BeforeEach
-    void setup() {
-        analyzer = new IntersectionAnalyzer();
-    }
+    private IntersectionStrategy analyzer;
 
     @Test
     @DisplayName("Overlapping rectangles - edges cross at 2 points")
@@ -34,7 +30,8 @@ public class IntersectionAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 4, 4);
         Rectangle b = new Rectangle(2, 2, 6, 6);
 
-        IntersectionResult result = analyzer.analyze(a, b);
+        IntersectionRequest intersectionRequest = new IntersectionRequest(a, b);
+        IntersectionResult result = analyzer.analyze(intersectionRequest);
 
         assertTrue(result.hasIntersection());
         assertEquals(2, result.intersectionPoints().size());
@@ -48,7 +45,8 @@ public class IntersectionAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 3, 3);
         Rectangle b = new Rectangle(5, 5, 8, 8);
 
-        IntersectionResult result = analyzer.analyze(a, b);
+        IntersectionRequest intersectionRequest = new IntersectionRequest(a, b);
+        IntersectionResult result = analyzer.analyze(intersectionRequest);
 
         assertFalse(result.hasIntersection());
         assertTrue(result.intersectionPoints().isEmpty());
@@ -61,7 +59,8 @@ public class IntersectionAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 10, 10);
         Rectangle b = new Rectangle(2, 2, 5, 5);
 
-        IntersectionResult result = analyzer.analyze(a, b);
+        IntersectionRequest intersectionRequest = new IntersectionRequest(a, b);
+        IntersectionResult result = analyzer.analyze(intersectionRequest);
 
         assertFalse(result.hasIntersection());
     }
@@ -75,7 +74,8 @@ public class IntersectionAnalyzerTest {
         Rectangle a = new Rectangle(0, 2, 8, 5);
         Rectangle b = new Rectangle(3, 0, 6, 8);
 
-        IntersectionResult result = analyzer.analyze(a, b);
+        IntersectionRequest intersectionRequest = new IntersectionRequest(a, b);
+        IntersectionResult result = analyzer.analyze(intersectionRequest);
 
         assertTrue(result.hasIntersection());
         assertEquals(4, result.intersectionPoints().size());
@@ -93,7 +93,8 @@ public class IntersectionAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 4, 4);
         Rectangle b = new Rectangle(4, 0, 8, 4);
 
-        IntersectionResult result = analyzer.analyze(a, b);
+        IntersectionRequest intersectionRequest = new IntersectionRequest(a, b);
+        IntersectionResult result = analyzer.analyze(intersectionRequest);
 
         // Edges coincide but don't properly cross — no unique interior crossing points
         assertFalse(result.hasIntersection());
@@ -108,7 +109,8 @@ public class IntersectionAnalyzerTest {
         Rectangle a = new Rectangle(0, 0, 4, 4);
         Rectangle b = new Rectangle(2, -2, 6, 2);
 
-        IntersectionResult result = analyzer.analyze(a, b);
+        IntersectionRequest intersectionRequest = new IntersectionRequest(a, b);
+        IntersectionResult result = analyzer.analyze(intersectionRequest);
 
         assertTrue(result.hasIntersection());
         assertEquals(2, result.intersectionPoints().size());

@@ -18,6 +18,9 @@ Given any two rectangles — each defined by two corner points `(x1, y1)` and `(
 | Java JDK | 17 or higher |
 | Gradle | 9.x via wrapper (no install needed) |
 | Git | Any recent version |
+| Docker | Any recent version (for containerized builds) |
+| kubectl | Any recent version (for Kubernetes deployments) |
+| gcloud CLI | Any recent version (for GCP interaction) |
 
 Verify Java:
 ```bash
@@ -29,6 +32,13 @@ java -version
 ## Project Structure
 
 ```
+.github/workflows/
+└── deploy.yml                        # CI/CD pipeline (test → build → push → deploy)
+k8s/
+├── deployment.yaml                   # GKE Deployment (2 replicas, rolling update, probes)
+├── service.yaml                      # LoadBalancer service with reserved static IP
+└── hpa.yaml                          # HorizontalPodAutoscaler (1–5 replicas at 70% CPU)
+Dockerfile                            # Multi-stage build (JDK 17 build → JRE 17 runtime)
 src/
 ├── main/java/com/rectangles/
 │   ├── RectanglesApplication.java        # Spring Boot entry point
@@ -140,9 +150,104 @@ All dependencies are pulled automatically from Maven Central on first build.
 |---|---|---|
 | `spring-boot-starter-web` | implementation | Spring MVC + embedded Tomcat for REST API |
 | `spring-boot-starter` | implementation | Core Spring Boot framework |
+| `spring-boot-starter-actuator` | implementation | Exposes `/actuator/health` for Kubernetes probes |
+| `spring-boot-starter-validation` | implementation | Request validation (`@Valid`, constraints) |
 | `lombok` | implementation | Boilerplate reduction (`@Getter`, `@Setter`, etc.) |
 | `spring-boot-starter-test` | testImplementation | JUnit 5, AssertJ, Mockito |
 | `junit-platform-launcher` | testRuntimeOnly | Required to run JUnit 5 tests with Gradle |
+
+---
+
+## Deployment
+
+### Docker
+
+Build and run locally:
+```bash
+docker build -t rectangles-api .
+docker run -p 8080:8080 rectangles-api
+```
+
+### GCP / GKE
+
+The application runs on GKE Autopilot with a reserved static IP, auto-scaling, and zero-downtime rolling updates.
+
+#### One-time GCP setup
+
+```bash
+# Enable required APIs
+gcloud services enable container.googleapis.com artifactregistry.googleapis.com \
+  --project=YOUR_PROJECT_ID
+
+# Create Artifact Registry repo
+gcloud artifacts repositories create rectangles \
+  --repository-format=docker \
+  --location=us-central1 \
+  --project=YOUR_PROJECT_ID
+
+# Create GKE Autopilot cluster
+gcloud container clusters create-auto rectangles-cluster \
+  --region=us-central1 \
+  --project=YOUR_PROJECT_ID
+
+# Reserve static IP
+gcloud compute addresses create rectangles-api-ip \
+  --region=us-central1 \
+  --project=YOUR_PROJECT_ID
+```
+
+#### GitHub Secrets
+
+Add the following in **Repo → Settings → Secrets and variables → Actions**:
+
+| Secret | Description |
+|--------|-------------|
+| `GCP_PROJECT_ID` | GCP project ID |
+| `GCP_SA_KEY` | Service account key JSON |
+| `GKE_CLUSTER` | Cluster name (e.g. `rectangles-cluster`) |
+| `GKE_REGION` | Cluster region (e.g. `us-central1`) |
+
+#### CI/CD Pipeline
+
+Pushing to `main` triggers the GitHub Actions workflow which:
+1. Runs all tests
+2. Builds and pushes a Docker image to Artifact Registry (tagged with the commit SHA)
+3. Deploys to GKE using a zero-downtime rolling update
+
+#### Kubernetes configuration
+
+| Resource | Detail |
+|----------|--------|
+| Replicas | 2 (min), 5 (max) |
+| Auto-scaling | HPA at 70% CPU |
+| Update strategy | `RollingUpdate` — `maxUnavailable: 0`, `maxSurge: 1` |
+| Health checks | Liveness + readiness on `/actuator/health` |
+| External IP | Reserved static IP via `spec.loadBalancerIP` |
+
+#### Get the external IP after deploy
+
+```bash
+kubectl get service rectangles-api
+```
+
+#### Test auto-scaling
+
+```bash
+# Watch HPA
+kubectl get hpa rectangles-api --watch
+
+# Generate load from inside the cluster
+kubectl run load-generator --image=alpine --restart=Never -- \
+  sh -c "apk add --no-cache curl -q && \
+  while true; do \
+    curl -s -o /dev/null -X POST http://rectangles-api/analyze/intersection \
+    -H 'Content-Type: application/json' \
+    -d '{\"rectangleA\":{\"minX\":0,\"minY\":0,\"maxX\":4,\"maxY\":4},\"rectangleB\":{\"minX\":2,\"minY\":2,\"maxX\":6,\"maxY\":6}}'; \
+  done"
+
+# Cleanup
+kubectl delete pod load-generator
+```
 
 ---
 

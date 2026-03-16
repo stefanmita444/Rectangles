@@ -80,4 +80,12 @@ class AnalyzerServiceTest {
     void testNullRequestReturnsNull() {
         assertNull(analyzerService.analyze(null));
     }
+
+    @Test
+    @DisplayName("Unknown request type returns null")
+    void testUnknownRequestTypeReturnsNull() {
+        var unknownRequest = mock(com.rectangles.dto.Request.class);
+        assertNull(analyzerService.analyze(unknownRequest));
+        verifyNoInteractions(intersectionStrategy, containmentStrategy, adjacencyStrategy);
+    }
 }

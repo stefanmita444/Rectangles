@@ -1,6 +1,6 @@
 package com.rectangles.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.AssertTrue;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,22 +39,27 @@ public class Rectangle {
      * Constructs a rectangle from two corner points.
      * Coordinates are normalized so minX <= maxX and minY <= maxY.
      *
-     * @param x1 x-coordinate of the first corner
-     * @param y1 y-coordinate of the first corner
-     * @param x2 x-coordinate of the second corner
-     * @param y2 y-coordinate of the second corner
+     * @param minX x-coordinate of the first corner
+     * @param minY y-coordinate of the first corner
+     * @param maxX x-coordinate of the second corner
+     * @param maxY y-coordinate of the second corner
      * @throws IllegalArgumentException if the rectangle has zero width or height
      */
-    @JsonIgnore
-    public Rectangle(double x1, double y1, double x2, double y2) {
-        if (x1 == x2) throw new IllegalArgumentException("Rectangle cannot have zero width.");
-        if (y1 == y2) throw new IllegalArgumentException("Rectangle cannot have zero height.");
+    public Rectangle(double minX, double minY, double maxX, double maxY) {
+        if (minX == maxX) throw new IllegalArgumentException("Rectangle cannot have zero width.");
+        if (minY == maxY) throw new IllegalArgumentException("Rectangle cannot have zero height.");
 
-        this.minX = Math.min(x1, x2);
-        this.minY = Math.min(y1, y2);
-        this.maxX = Math.max(x1, x2);
-        this.maxY = Math.max(y1, y2);
+        this.minX = Math.min(minX, maxX);
+        this.minY = Math.min(minY, maxY);
+        this.maxX = Math.max(minX, maxX);
+        this.maxY = Math.max(minY, maxY);
     }
+
+    @AssertTrue(message = "Rectangle cannot have zero width")
+    public boolean isWidthValid() { return minX != maxX; }
+
+    @AssertTrue(message = "Rectangle cannot have zero height")
+    public boolean isHeightValid() { return minY != maxY; }
 
     /** Returns the top-left corner of the rectangle. */
     public Point topLeft()     { return new Point(minX, maxY); }

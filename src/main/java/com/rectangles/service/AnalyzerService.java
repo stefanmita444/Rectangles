@@ -24,21 +24,15 @@ public class AnalyzerService {
             return null;
         }
 
-        AnalyzerStrategy analyzerStrategy = null;
+        AnalyzerStrategy analyzerStrategy;
 
         if (request instanceof IntersectionRequest) {
             analyzerStrategy = intersectionStrategy;
-        }
-
-        if (request instanceof ContainmentRequest) {
+        } else if (request instanceof ContainmentRequest) {
             analyzerStrategy = containmentStrategy;
-        }
-
-        if (request instanceof AdjacencyRequest) {
+        } else if (request instanceof AdjacencyRequest) {
             analyzerStrategy = adjacencyStrategy;
-        }
-
-        if (analyzerStrategy == null) {
+        } else {
             return null;
         }
 

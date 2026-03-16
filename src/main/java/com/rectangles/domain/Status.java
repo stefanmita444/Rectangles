@@ -1,5 +1,8 @@
 package com.rectangles.domain;
 
+import lombok.Getter;
+
+@Getter
 public enum Status {
     /**
      * Rectangle B is wholly inside Rectangle A.

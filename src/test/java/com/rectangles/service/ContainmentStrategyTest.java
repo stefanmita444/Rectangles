@@ -30,7 +30,7 @@ public class ContainmentStrategyTest {
         ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
         ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(Status.CONTAINED, result.status());
+        assertEquals(Status.CONTAINED, result.getStatus());
         assertTrue(result.isContained());
     }
 
@@ -43,7 +43,7 @@ public class ContainmentStrategyTest {
         ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
         ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(Status.CONTAINED, result.status());
+        assertEquals(Status.CONTAINED, result.getStatus());
     }
 
     @Test
@@ -55,7 +55,7 @@ public class ContainmentStrategyTest {
         ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
         ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(Status.NO_CONTAINMENT, result.status());
+        assertEquals(Status.NO_CONTAINMENT, result.getStatus());
         assertFalse(result.isContained());
     }
 
@@ -68,7 +68,7 @@ public class ContainmentStrategyTest {
         ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
         ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(Status.INTERSECTION_NO_CONTAINMENT, result.status());
+        assertEquals(Status.INTERSECTION_NO_CONTAINMENT, result.getStatus());
         assertFalse(result.isContained());
     }
 
@@ -81,7 +81,7 @@ public class ContainmentStrategyTest {
         ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
         ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(Status.CONTAINED, result.status());
+        assertEquals(Status.CONTAINED, result.getStatus());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class ContainmentStrategyTest {
         ContainmentRequest containmentRequest = new ContainmentRequest(b, a);
         ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(Status.CONTAINED, result.status());
+        assertEquals(Status.CONTAINED, result.getStatus());
         assertTrue(result.isContained());
     }
 
@@ -107,7 +107,7 @@ public class ContainmentStrategyTest {
         ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
         ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(Status.NO_CONTAINMENT, result.status());
+        assertEquals(Status.NO_CONTAINMENT, result.getStatus());
     }
 
     @Test
@@ -119,7 +119,7 @@ public class ContainmentStrategyTest {
         ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
         ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(Status.NO_CONTAINMENT, result.status());
+        assertEquals(Status.NO_CONTAINMENT, result.getStatus());
     }
 
     @Test
@@ -131,7 +131,7 @@ public class ContainmentStrategyTest {
         ContainmentRequest containmentRequest = new ContainmentRequest(a, b);
         ContainmentResult result = analyzer.analyze(containmentRequest);
 
-        assertEquals(Status.NO_CONTAINMENT, result.status());
+        assertEquals(Status.NO_CONTAINMENT, result.getStatus());
     }
 
 }

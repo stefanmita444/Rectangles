@@ -14,19 +14,19 @@ public class Segment {
   private Point end;
 
   public boolean isHorizontal() {
-      return this.start.y() == this.end.y();
+      return this.start.getY() == this.end.getY();
   }
 
   public double getConstantY() {
-      return this.start.y();
+      return this.start.getY();
   }
 
   public double getConstantX() {
-      return this.start.x();
+      return this.start.getX();
   }
 
-  public double getMinX() { return Math.min(this.start.x(), this.end.x()); }
-  public double getMaxX() { return Math.max(this.start.x(), this.end.x()); }
-  public double getMinY() { return Math.min(this.start.y(), this.end.y()); }
-  public double getMaxY() { return Math.max(this.start.y(), this.end.y()); }
+  public double getMinX() { return Math.min(this.start.getX(), this.end.getX()); }
+  public double getMaxX() { return Math.max(this.start.getX(), this.end.getX()); }
+  public double getMinY() { return Math.min(this.start.getY(), this.end.getY()); }
+  public double getMaxY() { return Math.max(this.start.getY(), this.end.getY()); }
 }

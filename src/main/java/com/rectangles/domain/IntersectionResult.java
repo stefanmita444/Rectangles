@@ -2,7 +2,6 @@ package com.rectangles.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 import java.util.Collections;
@@ -15,10 +14,9 @@ import java.util.List;
  * cross each other. A rectangle wholly contained inside another does NOT
  * produce an intersection result.</p>
  */
+@Getter
 @ToString
 @AllArgsConstructor
-@Getter
-@Setter
 public class IntersectionResult extends Result {
 
     private final boolean hasIntersection;

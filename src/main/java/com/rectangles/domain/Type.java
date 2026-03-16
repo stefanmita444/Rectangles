@@ -1,5 +1,8 @@
 package com.rectangles.domain;
 
+import lombok.Getter;
+
+@Getter
 public enum Type {
     /**
      * One full side of rectangle A exactly matches one full side of rectangle B.

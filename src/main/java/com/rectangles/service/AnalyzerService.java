@@ -1,41 +1,28 @@
 package com.rectangles.service;
 
 import com.rectangles.domain.Result;
-import com.rectangles.dto.AdjacencyRequest;
-import com.rectangles.dto.ContainmentRequest;
-import com.rectangles.dto.IntersectionRequest;
 import com.rectangles.dto.Request;
-import com.rectangles.service.strategy.AdjacencyStrategy;
 import com.rectangles.service.strategy.AnalyzerStrategy;
-import com.rectangles.service.strategy.ContainmentStrategy;
-import com.rectangles.service.strategy.IntersectionStrategy;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
-@RequiredArgsConstructor
 public class AnalyzerService {
-    private final AdjacencyStrategy adjacencyStrategy;
-    private final ContainmentStrategy containmentStrategy;
-    private final IntersectionStrategy intersectionStrategy;
 
+    private final Map<Class<?>, AnalyzerStrategy<?>> strategyMap;
+
+    public AnalyzerService(List<AnalyzerStrategy<?>> strategies) {
+        this.strategyMap = strategies.stream()
+            .collect(Collectors.toMap(AnalyzerStrategy::getSupportedRequestType, s -> s));
+    }
+
+    @SuppressWarnings("unchecked")
     public Result analyze(Request request) {
-        if (request == null) {
-            return null;
-        }
-
-        AnalyzerStrategy analyzerStrategy;
-
-        if (request instanceof IntersectionRequest) {
-            analyzerStrategy = intersectionStrategy;
-        } else if (request instanceof ContainmentRequest) {
-            analyzerStrategy = containmentStrategy;
-        } else if (request instanceof AdjacencyRequest) {
-            analyzerStrategy = adjacencyStrategy;
-        } else {
-            return null;
-        }
-
-        return analyzerStrategy.analyze(request);
+        if (request == null) return null;
+        AnalyzerStrategy<Request> strategy = (AnalyzerStrategy<Request>) strategyMap.get(request.getClass());
+        return strategy != null ? strategy.analyze(request) : null;
     }
 }

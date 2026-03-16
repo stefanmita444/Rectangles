@@ -357,8 +357,8 @@ AnalyzerController  →  AnalyzerService  →  AnalyzerStrategy (IntersectionStr
 ```
 
 - **`AnalyzerController`** — receives HTTP requests and maps them to typed `Request` DTOs
-- **`AnalyzerService`** — inspects the request type and delegates to the matching strategy
-- **`AnalyzerStrategy`** — interface with a single `analyze(Request) → Result` method; each implementation casts the request to its specific subtype and executes the algorithm
+- **`AnalyzerService`** — builds a `Map<Class, AnalyzerStrategy>` from all strategy beans at startup and dispatches each request by looking up `request.getClass()` — no `instanceof` checks
+- **`AnalyzerStrategy<T>`** — generic interface with `analyze(T) → Result` and `getSupportedRequestType() → Class<T>`; each implementation declares its own request type, eliminating internal casts
 
 ---
 

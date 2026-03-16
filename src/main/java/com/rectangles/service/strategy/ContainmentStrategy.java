@@ -4,7 +4,6 @@ import com.rectangles.domain.Rectangle;
 import com.rectangles.domain.ContainmentResult;
 import com.rectangles.domain.Status;
 import com.rectangles.dto.ContainmentRequest;
-import com.rectangles.dto.Request;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,7 +21,12 @@ import org.springframework.stereotype.Service;
  * overlap at all (intersection without containment), or are fully separate.</p>
  */
 @Service
-public class ContainmentStrategy implements AnalyzerStrategy {
+public class ContainmentStrategy implements AnalyzerStrategy<ContainmentRequest> {
+
+    @Override
+    public Class<ContainmentRequest> getSupportedRequestType() {
+        return ContainmentRequest.class;
+    }
 
     /**
      * Checks whether rectangle {@code inner} is wholly contained within
@@ -35,16 +39,14 @@ public class ContainmentStrategy implements AnalyzerStrategy {
      * @return a {@link ContainmentResult} describing the relationship
      */
     @Override
-    public ContainmentResult analyze(Request request) {
-        ContainmentRequest containmentRequest = (ContainmentRequest) request;
-
-        if (isContained(containmentRequest.getRectangleA(), containmentRequest.getRectangleB())) {
+    public ContainmentResult analyze(ContainmentRequest request) {
+        if (isContained(request.getRectangleA(), request.getRectangleB())) {
             return new ContainmentResult(Status.CONTAINED);
         }
-        if (isContained(containmentRequest.getRectangleB(), containmentRequest.getRectangleA())) {
+        if (isContained(request.getRectangleB(), request.getRectangleA())) {
             return new ContainmentResult(Status.CONTAINED);
         }
-        if (overlaps(containmentRequest.getRectangleA(), containmentRequest.getRectangleB())) {
+        if (overlaps(request.getRectangleA(), request.getRectangleB())) {
             return new ContainmentResult(Status.INTERSECTION_NO_CONTAINMENT);
         }
         return new ContainmentResult(Status.NO_CONTAINMENT);

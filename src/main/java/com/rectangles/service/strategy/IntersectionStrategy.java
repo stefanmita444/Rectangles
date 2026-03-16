@@ -5,7 +5,6 @@ import com.rectangles.domain.Rectangle;
 import com.rectangles.domain.IntersectionResult;
 import com.rectangles.domain.Segment;
 import com.rectangles.dto.IntersectionRequest;
-import com.rectangles.dto.Request;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,7 +40,12 @@ import java.util.List;
  * of two {@link com.rectangles.domain.Point} objects (start and end).</p>
  */
 @Service
-public class IntersectionStrategy implements AnalyzerStrategy {
+public class IntersectionStrategy implements AnalyzerStrategy<IntersectionRequest> {
+
+    @Override
+    public Class<IntersectionRequest> getSupportedRequestType() {
+        return IntersectionRequest.class;
+    }
 
     /**
      * Analyzes the edge intersection between two rectangles.
@@ -50,12 +54,9 @@ public class IntersectionStrategy implements AnalyzerStrategy {
      * @return an {@link IntersectionResult} with a flag and list of crossing points
      */
     @Override
-    public IntersectionResult analyze(Request request) {
-
-        IntersectionRequest intersectionRequest = (IntersectionRequest) request;
-
-        List<Segment> segmentsA = getSegments(intersectionRequest.getRectangleA());
-        List<Segment> segmentsB = getSegments(intersectionRequest.getRectangleB());
+    public IntersectionResult analyze(IntersectionRequest request) {
+        List<Segment> segmentsA = getSegments(request.getRectangleA());
+        List<Segment> segmentsB = getSegments(request.getRectangleB());
         List<Point> points = new ArrayList<>();
 
         for (Segment segmentA : segmentsA) {

@@ -11,10 +11,10 @@ import com.rectangles.dto.IntersectionRequest;
 import com.rectangles.service.strategy.AdjacencyStrategy;
 import com.rectangles.service.strategy.ContainmentStrategy;
 import com.rectangles.service.strategy.IntersectionStrategy;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -22,6 +22,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.clearInvocations;
 
 @ExtendWith(MockitoExtension.class)
 class AnalyzerServiceTest {
@@ -30,8 +31,16 @@ class AnalyzerServiceTest {
     @Mock private ContainmentStrategy containmentStrategy;
     @Mock private AdjacencyStrategy adjacencyStrategy;
 
-    @InjectMocks
     private AnalyzerService analyzerService;
+
+    @BeforeEach
+    void setUp() {
+        when(intersectionStrategy.getSupportedRequestType()).thenReturn(IntersectionRequest.class);
+        when(containmentStrategy.getSupportedRequestType()).thenReturn(ContainmentRequest.class);
+        when(adjacencyStrategy.getSupportedRequestType()).thenReturn(AdjacencyRequest.class);
+        analyzerService = new AnalyzerService(List.of(intersectionStrategy, containmentStrategy, adjacencyStrategy));
+        clearInvocations(intersectionStrategy, containmentStrategy, adjacencyStrategy);
+    }
 
     @Test
     @DisplayName("IntersectionRequest routes to IntersectionStrategy")

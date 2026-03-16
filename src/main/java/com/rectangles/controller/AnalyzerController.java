@@ -15,17 +15,17 @@ import org.springframework.web.bind.annotation.*;
 public class AnalyzerController {
     private final AnalyzerService analyzerService;
 
-    @GetMapping("/adjacency")
+    @PostMapping("/adjacency")
     public Result getAdjacency(@Valid @RequestBody AdjacencyRequest request) {
         return analyzerService.analyze(request);
     }
 
-    @GetMapping("/intersection")
+    @PostMapping("/intersection")
     public Result getIntersection(@Valid @RequestBody IntersectionRequest request) {
         return analyzerService.analyze(request);
     }
 
-    @GetMapping("/containment")
+    @PostMapping("/containment")
     public Result getContainment(@Valid @RequestBody ContainmentRequest request) {
         return analyzerService.analyze(request);
     }

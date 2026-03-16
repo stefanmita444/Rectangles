@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rectangles.domain.AdjacencyResult;
 import com.rectangles.domain.ContainmentResult;
 import com.rectangles.domain.IntersectionResult;
+import com.rectangles.domain.Point;
 import com.rectangles.domain.Rectangle;
 import com.rectangles.domain.Status;
 import com.rectangles.domain.Type;
@@ -23,8 +24,8 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AnalyzerController.class)
 class AnalyzerControllerTest {
@@ -39,44 +40,66 @@ class AnalyzerControllerTest {
     private AnalyzerService analyzerService;
 
     @Test
-    @DisplayName("GET /analyze/intersection returns 200")
+    @DisplayName("POST /analyze/intersection returns 200 with correct body")
     void testIntersectionEndpoint() throws Exception {
-        when(analyzerService.analyze(any())).thenReturn(new IntersectionResult(false, List.of()));
+        when(analyzerService.analyze(any()))
+                .thenReturn(new IntersectionResult(true, List.of(new Point(4, 2), new Point(2, 4))));
 
-        Rectangle r = new Rectangle(0, 0, 4, 4);
-        String body = objectMapper.writeValueAsString(new IntersectionRequest(r, r));
+        Rectangle a = new Rectangle(0, 0, 4, 4);
+        Rectangle b = new Rectangle(2, 2, 6, 6);
+        String body = objectMapper.writeValueAsString(new IntersectionRequest(a, b));
 
-        mockMvc.perform(get("/analyze/intersection")
+        mockMvc.perform(post("/analyze/intersection")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.hasIntersection").value(true))
+                .andExpect(jsonPath("$.intersectionPoints").isArray())
+                .andExpect(jsonPath("$.intersectionPoints.length()").value(2));
     }
 
     @Test
-    @DisplayName("GET /analyze/containment returns 200")
+    @DisplayName("POST /analyze/containment returns 200 with correct body")
     void testContainmentEndpoint() throws Exception {
-        when(analyzerService.analyze(any())).thenReturn(new ContainmentResult(Status.NO_CONTAINMENT));
+        when(analyzerService.analyze(any())).thenReturn(new ContainmentResult(Status.CONTAINED));
 
-        Rectangle r = new Rectangle(0, 0, 4, 4);
-        String body = objectMapper.writeValueAsString(new ContainmentRequest(r, r));
+        Rectangle a = new Rectangle(0, 0, 10, 10);
+        Rectangle b = new Rectangle(2, 2, 7, 7);
+        String body = objectMapper.writeValueAsString(new ContainmentRequest(a, b));
 
-        mockMvc.perform(get("/analyze/containment")
+        mockMvc.perform(post("/analyze/containment")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value("CONTAINED"));
     }
 
     @Test
-    @DisplayName("GET /analyze/adjacency returns 200")
+    @DisplayName("POST /analyze/adjacency returns 200 with correct body")
     void testAdjacencyEndpoint() throws Exception {
-        when(analyzerService.analyze(any())).thenReturn(new AdjacencyResult(Type.NOT_ADJACENT));
+        when(analyzerService.analyze(any())).thenReturn(new AdjacencyResult(Type.PROPER));
 
-        Rectangle r = new Rectangle(0, 0, 4, 4);
-        String body = objectMapper.writeValueAsString(new AdjacencyRequest(r, r));
+        Rectangle a = new Rectangle(0, 0, 4, 4);
+        Rectangle b = new Rectangle(4, 0, 8, 4);
+        String body = objectMapper.writeValueAsString(new AdjacencyRequest(a, b));
 
-        mockMvc.perform(get("/analyze/adjacency")
+        mockMvc.perform(post("/analyze/adjacency")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.type").value("PROPER"))
+                .andExpect(jsonPath("$.adjacent").value(true));
+    }
+
+    @Test
+    @DisplayName("POST /analyze/intersection with missing body returns 400")
+    void testIntersectionEndpointValidationError() throws Exception {
+        mockMvc.perform(post("/analyze/intersection")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{}"))
+                .andExpect(status().isBadRequest());
     }
 }

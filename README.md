@@ -35,7 +35,8 @@ src/
 │   ├── config/
 │   │   └── CliRunner.java                # Interactive CLI (active on 'cli' profile only)
 │   ├── controller/
-│   │   └── AnalyzerController.java       # REST endpoints (/analyze/*)
+│   │   ├── AnalyzerController.java       # REST endpoints (/analyze/*)
+│   │   └── GlobalExceptionHandler.java   # Returns clean 400 JSON on validation failures
 │   ├── service/
 │   │   ├── AnalyzerService.java          # Routes requests to the correct strategy
 │   │   └── strategy/
@@ -162,15 +163,15 @@ The application exposes a REST API under `/analyze`. All endpoints accept a JSON
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/analyze/intersection` | Check if edges cross and return crossing points |
-| `GET` | `/analyze/containment` | Check if one rectangle is inside the other |
-| `GET` | `/analyze/adjacency` | Check if rectangles share a boundary |
+| `POST` | `/analyze/intersection` | Check if edges cross and return crossing points |
+| `POST` | `/analyze/containment` | Check if one rectangle is inside the other |
+| `POST` | `/analyze/adjacency` | Check if rectangles share a boundary |
 
 ### Example — Intersection
 
 **Request**
 ```
-GET /analyze/intersection
+POST /analyze/intersection
 ```
 ```json
 {
@@ -186,6 +187,19 @@ GET /analyze/intersection
   "intersectionPoints": [
     { "x": 4.0, "y": 2.0 },
     { "x": 2.0, "y": 4.0 }
+  ]
+}
+```
+
+### Validation Errors
+
+Sending a request with missing or invalid fields returns `400 Bad Request` with a JSON body listing the violations:
+
+```json
+{
+  "status": 400,
+  "errors": [
+    "rectangleA: must not be null"
   ]
 }
 ```
@@ -303,8 +317,8 @@ Tests use JUnit 5. Strategy tests use `@ExtendWith(SpringExtension.class)` and `
 | `IntersectionStrategyTest` | 6 | Overlapping, separate, contained, cross-shape (4 points verified), touching edge, partial overlap |
 | `ContainmentStrategyTest` | 9 | Fully contained, boundary, separate, overlap, identical, reversed inputs, A below B, B left of A, B below A |
 | `AdjacencyStrategyTest` | 13 | Proper (all 4 directions), sub-line (both directions), partial, not adjacent (gap, diagonal, x-gap, y-gap, overlapping, corner-touch) |
-| `AnalyzerServiceTest` | 4 | Routing to each strategy, null request handling |
-| `AnalyzerControllerTest` | 3 | 200 response for each endpoint |
+| `AnalyzerServiceTest` | 5 | Routing to each strategy, null request, unknown request type |
+| `AnalyzerControllerTest` | 4 | 200 + body assertions for each endpoint, 400 on invalid input |
 
 ---
 

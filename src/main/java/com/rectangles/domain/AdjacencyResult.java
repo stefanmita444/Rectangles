@@ -1,10 +1,12 @@
 package com.rectangles.domain;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * Represents the result of an adjacency check between two rectangles.
  */
+@Getter
 @AllArgsConstructor
 public class AdjacencyResult extends Result {
 
@@ -17,9 +19,5 @@ public class AdjacencyResult extends Result {
     @Override
     public String toString() {
         return "AdjacencyResult{type=" + type + "}";
-    }
-
-    public Type type() {
-        return this.type;
     }
 }

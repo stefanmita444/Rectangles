@@ -32,7 +32,7 @@ public class AdjacencyStrategyTest {
 
         AdjacencyResult result = analyzer.analyze(adjacencyRequest);
 
-        assertEquals(Type.PROPER, result.type());
+        assertEquals(Type.PROPER, result.getType());
         assertTrue(result.isAdjacent());
     }
 
@@ -47,7 +47,7 @@ public class AdjacencyStrategyTest {
 
         AdjacencyResult result = analyzer.analyze(adjacencyRequest);
 
-        assertEquals(Type.PROPER, result.type());
+        assertEquals(Type.PROPER, result.getType());
     }
 
     @Test
@@ -62,7 +62,7 @@ public class AdjacencyStrategyTest {
 
         AdjacencyResult result = analyzer.analyze(adjacencyRequest);
 
-        assertEquals(Type.SUB_LINE, result.type());
+        assertEquals(Type.SUB_LINE, result.getType());
     }
 
     @Test
@@ -76,7 +76,7 @@ public class AdjacencyStrategyTest {
 
         AdjacencyResult result = analyzer.analyze(adjacencyRequest);
 
-        assertEquals(Type.SUB_LINE, result.type());
+        assertEquals(Type.SUB_LINE, result.getType());
     }
 
     @Test
@@ -91,7 +91,7 @@ public class AdjacencyStrategyTest {
 
         AdjacencyResult result = analyzer.analyze(adjacencyRequest);
 
-        assertEquals(Type.PARTIAL, result.type());
+        assertEquals(Type.PARTIAL, result.getType());
     }
 
     @Test
@@ -104,7 +104,7 @@ public class AdjacencyStrategyTest {
 
         AdjacencyResult result = analyzer.analyze(adjacencyRequest);
 
-        assertEquals(Type.NOT_ADJACENT, result.type());
+        assertEquals(Type.NOT_ADJACENT, result.getType());
         assertFalse(result.isAdjacent());
     }
 
@@ -118,7 +118,7 @@ public class AdjacencyStrategyTest {
 
         AdjacencyResult result = analyzer.analyze(adjacencyRequest);
 
-        assertEquals(Type.NOT_ADJACENT, result.type());
+        assertEquals(Type.NOT_ADJACENT, result.getType());
     }
 
     @Test
@@ -133,7 +133,7 @@ public class AdjacencyStrategyTest {
 
         AdjacencyResult result = analyzer.analyze(adjacencyRequest);
 
-        assertEquals(Type.NOT_ADJACENT, result.type());
+        assertEquals(Type.NOT_ADJACENT, result.getType());
     }
 
     @Test
@@ -146,7 +146,7 @@ public class AdjacencyStrategyTest {
 
         AdjacencyResult result = analyzer.analyze(adjacencyRequest);
 
-        assertEquals(Type.NOT_ADJACENT, result.type());
+        assertEquals(Type.NOT_ADJACENT, result.getType());
     }
 
     @Test
@@ -160,7 +160,7 @@ public class AdjacencyStrategyTest {
 
         AdjacencyResult result = analyzer.analyze(adjacencyRequest);
 
-        assertEquals(Type.PROPER, result.type());
+        assertEquals(Type.PROPER, result.getType());
         assertTrue(result.isAdjacent());
     }
 
@@ -175,7 +175,7 @@ public class AdjacencyStrategyTest {
 
         AdjacencyResult result = analyzer.analyze(adjacencyRequest);
 
-        assertEquals(Type.NOT_ADJACENT, result.type());
+        assertEquals(Type.NOT_ADJACENT, result.getType());
     }
 
     @Test
@@ -189,7 +189,7 @@ public class AdjacencyStrategyTest {
 
         AdjacencyResult result = analyzer.analyze(adjacencyRequest);
 
-        assertEquals(Type.NOT_ADJACENT, result.type());
+        assertEquals(Type.NOT_ADJACENT, result.getType());
     }
 
     @Test
@@ -203,7 +203,7 @@ public class AdjacencyStrategyTest {
 
         AdjacencyResult result = analyzer.analyze(adjacencyRequest);
 
-        assertEquals(Type.PROPER, result.type());
+        assertEquals(Type.PROPER, result.getType());
         assertTrue(result.isAdjacent());
     }
 
